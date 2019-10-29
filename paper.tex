@@ -1,0 +1,68 @@
+\documentclass{aastex63}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{bm}
+
+
+
+
+\begin{document}
+
+
+\newcommand{\ddt}[1]{\frac{\partial}{\partial t} #1} 
+\newcommand{\divergence}[1]{{\bf \nabla} \cdot #1}
+\newcommand{\curl}[1]{{\bf \nabla} \times #1}
+\newcommand{\gradient}[1]{{\bf \nabla} #1}
+\newcommand{\vect}[1]{{\bf #1}}
+\newcommand{\am}{\bm{l}}
+
+The evolution equations are
+\begin{equation}
+\ddt{\rho}+\divergence{\rho\vect{u}}=0,
+\label{rho}
+\end{equation}
+\begin{equation}
+\ddt{\rho \vect{u}}+\divergence{\rho\vect{u}\vect{u} + \gradient{p}}=\rho \vect{g},
+\label{rhou}
+\end{equation}
+\begin{equation}
+\ddt{\am}+\divergence{\vect{u}\am - \curl{\vect{x} p}}=\vect{x}\times\rho \vect{g},
+\label{am}
+\end{equation}
+\begin{equation}
+\ddt{\left(E+\tfrac{1}{2}\rho\phi\right)}+\divergence{\vect{u}\left(E+p+\rho\phi\right)}=\tfrac{1}{2}\left(\phi\ddt{\rho}-\rho\ddt{\phi}\right),
+\label{E}
+\end{equation}
+and
+\begin{equation}
+\ddt{\tau}+\divergence{\tau\vect{u}}=0,
+\label{tau}
+\end{equation}
+where $t$ is the time coordinate, $\rho$ is the mass density, $\vect{u}$ is the velocity, $\vect{x}$ is the spatial coordinate relative to the origin, 
+$p$ is the gas pressure, $\vect{g}$ is the gravitational acceleration, 
+$\am$ is the angular momentum relative to the coordinate center, $E$ is the gas energy, $\phi$ is the gravitational potential, and $\tau$ is the entropy
+tracer.
+
+The gas pressure, $p$, is taken as the ideal gas pressure for a monatomic gas, 
+\begin{equation}
+p = \left( \gamma - 1 ) \right) e, 
+\end{equation}
+where $\gamma = \tfrac{5}{3}$. The internal gas energy density, $e$, is computed using the dual energy formalism of (CITE),
+\begin{equation}
+    e = 
+\begin{cases}
+    E - \tfrac{1}{2} \rho u^2, & \text{if } E - \tfrac{1}{2} \rho u^2 \geq \epsilon_1 E\\
+    \tau^{\gamma},             & \text{else}
+\end{cases},
+\end{equation}
+where $\epsilon_1 = 0.001$.
+
+The angular momentum, defined as
+\begin{equation}
+\am = \vect{x} \times \rho \vect{u}.
+\end{equation}
+
+
+
+
+\end{document}
