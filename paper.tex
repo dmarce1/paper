@@ -53,7 +53,7 @@ The gas pressure, $p$, is taken as the ideal gas pressure for a monatomic gas,
 \begin{equation}
 p = \left( \gamma - 1 ) \right) e, 
 \end{equation}
-where $\gamma = \tfrac{5}{3}$. The internal gas energy density, $e$, is computed using the dual energy formalism of (CITE),
+where $\gamma = \tfrac{5}{3}$. The internal gas energy density, $e$, is computed using the dual energy formalism of \cite{BRYAN1995},
 \begin{equation}
     e = 
 \begin{cases}
@@ -92,7 +92,7 @@ we reconstruct
 \end{align}
 and then transform back to $U$ after reconstruction.
 
-Using the piece-wise parabolic method (PPM) of \cite{COLELLA1984}, we reconstruct values at cell eight vertices, 
+Using the piece-wise parabolic method (PPM) of \cite{COLELLA1984}, we reconstruct values at eight cell vertices, 
 \begin{equation}
 \begin{split}
 V_{j \pm \tfrac{1}{2} k \pm \tfrac{1}{2} l \pm \tfrac{1}{2}} = & 
@@ -172,6 +172,30 @@ where
 Here, $\mathrm{minmod}$ is the ubiquitous minmod operator, 
 \begin{equation}
 \mathrm{minmod}\left(a,b\right) = \tfrac{1}{2}\left(\mathrm{sgn}\left(a\right)+\mathrm{sgn}\left(b\right)\right) \mathrm{min}\left( | a |, | b | \right).
+\end{equation}
+
+Now we split the shared reconstructed values into
+\begin{equation}
+V^{\pm \pm \pm}_{j k l} \rightarrow V_{j\pm\tfrac{1}{2} k\pm\tfrac{1}{2} l\pm\tfrac{1}{2}},
+\end{equation}
+\begin{equation}
+V^{\pm \pm 0}_{j k l} \rightarrow V_{j\pm\tfrac{1}{2} k\pm\tfrac{1}{2} l},
+\end{equation}
+\begin{equation}
+V^{\pm 0 \pm}_{j k l} \rightarrow V_{j\pm\tfrac{1}{2} k l\pm\tfrac{1}{2}},
+\end{equation}
+\begin{equation}
+V^{0 \pm \pm}_{j k l} \rightarrow V_{j k\pm\tfrac{1}{2} l\pm\tfrac{1}{2}},
+\end{equation}
+\begin{equation}
+V^{\pm 0 0}_{j k l} \rightarrow V_{j\pm\tfrac{1}{2} k l},
+\end{equation}
+\begin{equation}
+V^{0 \pm 0}_{j k l} \rightarrow V_{j k\pm\tfrac{1}{2} l},
+\end{equation}
+and
+\begin{equation}
+V^{0 0 \pm}_{j k l} \rightarrow V_{j k l\pm\tfrac{1}{2}}.
 \end{equation}
 
 
