@@ -17,6 +17,8 @@
 \newcommand{\vect}[1]{{\bf #1}}
 \newcommand{\am}{\bm{l}}
 
+
+\section{Model Equations}
 The evolution equations are
 \begin{equation}
 \ddt{\rho}+\divergence{\rho\vect{u}}=0,
@@ -65,7 +67,89 @@ The angular momentum, defined as
 
 
 \section{Method}
-We begin by reconstructing cell averaged values on faces using the piece-wise parabolic method (PPM) of \cite{COLELLA1984}.
+We begin by reconstructing cell averaged values on the surface of the cells using the piece-wise parabolic method (PPM) of \cite{COLELLA1984}. We reconstruct values at cell eight vertices, 
+\begin{equation}
+\begin{split}
+u_{j \pm \tfrac{1}{2} k \pm \tfrac{1}{2} l \pm \tfrac{1}{2}} = & 
+\frac{1}{2}\left(u_{ j k l } + u_{j \pm 1 k \pm 1 l \pm 1}\right) - \\
+& \frac{1}{6}\left(
+\mathrm{minmod}_2 \left(u_{j \pm 2 k \pm 2 l \pm 2} - u_{j \pm 1 k \pm 1 l \pm  1}, u_{j \pm 1 k \pm 1 l \pm 1} - u_{j k l }   \right) -
+\mathrm{minmod}_2 \left(u_{j \pm 1 k \pm 1 l \pm 1} - u_{j k l}, u_{j k l } - u_{j \mp 1 k \mp 1 l \mp 1 }   \right)
+\right),
+\end{split}
+\end{equation}
+twelve cell edges, 
+\begin{equation}
+\begin{split}
+u_{j \pm \tfrac{1}{2} k \pm \tfrac{1}{2} l } = & 
+\frac{1}{2}\left(u_{ j k l } + u_{j \pm 1 k \pm 1 l}\right) - \\
+& \frac{1}{6}\left(
+\mathrm{minmod}_2 \left(u_{j \pm 2 k \pm 2 l} - u_{j \pm 1 k \pm 1 l \pm  1}, u_{j \pm 1 k \pm 1 l} - u_{j k l }   \right) -
+\mathrm{minmod}_2 \left(u_{j \pm 1 k \pm 1 l} - u_{j k l}, u_{j k l } - u_{j \mp 1 k \mp 1 l}   \right)
+\right),
+\end{split}
+\end{equation}
+\begin{equation}
+\begin{split}
+u_{j \pm \tfrac{1}{2} k l \pm \tfrac{1}{2}} = & 
+\frac{1}{2}\left(u_{ j k l } + u_{j \pm 1 k l \pm 1}\right) - \\
+& \frac{1}{6}\left(
+\mathrm{minmod}_2 \left(u_{j \pm 2 k l \pm 2} - u_{j \pm 1 k l \pm  1}, u_{j \pm 1 k l \pm 1} - u_{j k l }   \right) -
+\mathrm{minmod}_2 \left(u_{j \pm 1 k l \pm 1} - u_{j k l}, u_{j k l } - u_{j \mp 1 k l \mp 1 }   \right)
+\right),
+\end{split}
+\end{equation}
+\begin{equation}
+\begin{split}
+u_{j k \pm \tfrac{1}{2} l \pm \tfrac{1}{2}} = & 
+\frac{1}{2}\left(u_{ j k l } + u_{j k \pm 1 l \pm 1}\right) - \\
+& \frac{1}{6}\left(
+\mathrm{minmod}_2 \left(u_{j k \pm 2 l \pm 2} - u_{j k \pm 1 l \pm  1}, u_{j k \pm 1 l \pm 1} - u_{j k l }   \right) -
+\mathrm{minmod}_2 \left(u_{j k \pm 1 l \pm 1} - u_{j k l}, u_{j k l } - u_{j k \mp 1 l \mp 1 }   \right)
+\right),
+\end{split}
+\end{equation}
+and six cell faces,
+\begin{equation}
+\begin{split}
+u_{j \pm \tfrac{1}{2} k l } = & 
+\frac{1}{2}\left(u_{ j k l } + u_{j \pm 1 k l}\right) - \\
+& \frac{1}{6}\left(
+\mathrm{minmod}_2 \left(u_{j \pm 2 k l} - u_{j \pm 1 k l }, u_{j \pm 1 k l} - u_{j k l }   \right) -
+\mathrm{minmod}_2 \left(u_{j \pm 1 k l} - u_{j k l}, u_{j k l } - u_{j \mp 1 k l}   \right)
+\right),
+\end{split}
+\end{equation}
+\begin{equation}
+\begin{split}
+u_{j  k \pm \tfrac{1}{2} l} = & 
+\frac{1}{2}\left(u_{ j k l } + u_{j k \pm 1 l}\right) - \\
+& \frac{1}{6}\left(
+\mathrm{minmod}_2 \left(u_{j k \pm 2 l} - u_{j k \pm 1 l }, u_{j k \pm 1 l } - u_{j k l }   \right) -
+\mathrm{minmod}_2 \left(u_{j k \pm 1 l} - u_{j k l}, u_{j k l } - u_{j k \mp 1 l }   \right)
+\right),
+\end{split}
+\end{equation}
+\begin{equation}
+\begin{split}
+u_{j  k l \pm \tfrac{1}{2}} = & 
+\frac{1}{2}\left(u_{ j k l } + u_{j k l \pm 1}\right) - \\
+& \frac{1}{6}\left(
+\mathrm{minmod}_2 \left(u_{j k l \pm 2} - u_{j k l \pm  1}, u_{j k l \pm 1} - u_{j k l }   \right) -
+\mathrm{minmod}_2 \left(u_{j k l \pm 1} - u_{j k l}, u_{j k l } - u_{j k l \mp 1 }   \right)
+\right),
+\end{split}
+\end{equation}
+where
+\begin{equation}
+\mathrm{minmod}_2 \left( a, b \right) := \mathrm{minmod} \left( 2 \ \mathrm{minmod}\left(a,b\right), \tfrac{1}{2}\left(a + b\right)\right).
+\end{equation}
+Here, $\mathrm{minmod}$ is the ubiquitous minmod operator, 
+\begin{equation}
+\mathrm{minmod}\left(a,b\right) = \tfrac{1}{2}\left(\mathrm{sgn}\left(a\right)+\mathrm{sgn}\left(b\right)\right) \mathrm{min}\left( | a |, | b | \right).
+\end{equation}
+
+
 
 \bibliographystyle{plain}
 \bibliography{references}
