@@ -199,26 +199,53 @@ V^{0 0 \pm}_{j k l} \rightarrow V_{j k l\pm\tfrac{1}{2}}.
 \end{equation}
 
 
-The PPM limiter is defined as
+The PPM limiter of \cite{COLELLA1984} is defined as
 \begin{align}
   \begin{bmatrix}
- 	a_R \\
-        a_L
+ 	a^+ \\
+        a^-
   \end{bmatrix} \rightarrow
   \begin{bmatrix}
  	\begin{cases}
-             a_0 &  \mathrm{if} \ \left(a_R - a_0\right)\left(a_0 - a_L\right) < 0 \\
-             3 a_0 - 2 a_L & \mathrm{if}  \ -\frac{\left(a_R - a_L\right)}{6} < \left(a_0 - \tfrac{1}{2}\left(a_R + a_L\right)\right) \\
-             a_R &  \mathrm{else}
+             a_0 &  \mathrm{if} \ \left(a^+ - a_0\right)\left(a_0 - a^-\right) < 0 \\
+             3 a_0 - 2 a^- & \mathrm{if}  \ -\frac{\left(a^+ - a^-\right)}{6} < \left(a_0 - \tfrac{1}{2}\left(a^+ + a^-\right)\right) \\
+             a^+ &  \mathrm{else}
         \end{cases} \\
 \\
          \begin{cases}
-             a_0 &  \mathrm{if} \ \left(a_R - a_0\right)\left(a_0 - a_L\right) < 0 \\
-             3 a_0 - 2 a_R & \mathrm{if} \ \frac{\left(a_R - a_L\right)}{6} < \left(a_0 - \tfrac{1}{2}\left(a_R + a_L\right)\right) \\
-             a_L &  \mathrm{else}
+             a_0 &  \mathrm{if} \ \left(a^+ - a_0\right)\left(a_0 - a^-\right) < 0 \\
+             3 a_0 - 2 a^+ & \mathrm{if} \ \frac{\left(a^+ - a^-\right)}{6} < \left(a_0 - \tfrac{1}{2}\left(a^+ + a^-\right)\right) \\
+             a^- &  \mathrm{else}
         \end{cases}
-  \end{bmatrix}
+  \end{bmatrix},
 \end{align}
+where $a^-$, $a_0$, and $a^+$ refer to the values at cell vertices, $V^{\pm\pm\pm}_{j k l}$, $V_{j k l}$, and $V^{\mp\mp\mp}_{j k l}$, cell edges,
+$V^{\pm\pm 0}_{j k l}$, $V_{j k l}$, and $V^{\mp\mp 0}_{j k l}$,
+$V^{\pm 0 \pm}_{j k l}$, $V_{j k l}$, and $V^{\mp 0 \mp}_{j k l}$,
+and
+$V^{0 \pm\pm}_{j k l}$, $V_{j k l}$, and $V^{0 \mp\mp}_{j k l}$, 
+and cell faces
+$V^{\pm 0 0}_{j k l}$, $V_{j k l}$, and $V^{\mp 0 0}_{j k l}$,
+$V^{\pm 0 \pm}_{j k l}$, $V_{j k l}$, and $V^{0 \mp 0}_{j k l}$,
+and
+$V^{0 \pm \pm}_{j k l}$, $V_{j k l}$, and $V^{0 0 \mp}_{j k l}$.
+
+Now we modify the reconstruction for the linear momenta, $\vect{s}$, using information from the angular momenta, $\am$. This resembles closely the method
+used by \cite{DESPRES2015}. First we measure the amount of angular momentum, relative to cell centers, represented by the reconstructed linear momentum.
+Summing over all $\pm$ combinations using Simpson's rule, the measured angular momentum for a cell is
+\begin{equation}
+\begin{split}
+\vect{z}_{M, j k l} := 
+& \frac{1}{216} \Sigma^{\pm\pm\pm}  \left(\vect{x}_{j\pm\tfrac{1}{2} k \pm\tfrac{1}{2} l\pm\tfrac{1}{2}}  - \vect{x}_{j k l}\right) \times \vect{s}^{\pm\pm\pm}_{j k l} + \\
+& \frac{1}{54}  \ \Sigma^{\pm\pm} \left(\vect{x}_{j\pm\tfrac{1}{2}  k \pm\tfrac{1}{2} l}                - \vect{x}_{j k l}\right)\times \vect{s}^{\pm\pm 0}_{j k l} + \\ 
+& \frac{1}{54}  \ \Sigma^{\pm\pm} \left(\vect{x}_{j\pm\tfrac{1}{2}  k                 l\pm\tfrac{1}{2}} - \vect{x}_{j k l}\right)\times \vect{s}^{\pm 0\pm}_{j k l} + \\
+& \frac{1}{54}  \ \Sigma^{\pm\pm} \left(\vect{x}_{j                 k\pm\tfrac{1}{2}  l\pm\tfrac{1}{2}} - \vect{x}_{j k l}\right)\times \vect{s}^{0\pm\pm }_{j k l} + \\
+& \frac{2}{27}  \ \Sigma^{\pm}   \left(\vect{x}_{j\pm\tfrac{1}{2} k l}                                 - \vect{x}_{j k l}\right)\times \vect{s}^{\pm 0 0}_{j k l} +  \\
+& \frac{2}{27}  \ \Sigma^{\pm}   \left(\vect{x}_{j k\pm\tfrac{1}{2} l}                                 - \vect{x}_{j k l}\right)\times \vect{s}^{0 \pm 0}_{j k l} +  \\
+& \frac{2}{27}  \ \Sigma^{\pm}   \left(\vect{x}_{j k l\pm\tfrac{1}{2}}                                 - \vect{x}_{j k l}\right)\times \vect{s}^{0 0 \pm}_{j k l} 
+\end{split}
+\end{equation}
+
 
 
 
