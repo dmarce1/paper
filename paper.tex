@@ -70,6 +70,7 @@ The angular momentum is defined as
 
 
 \section{Method}
+\subsection{Reconstruction}
 We begin by reconstructing cell averaged values on the surface of the cells. Rather than reconstruct the vector of conserved quanties, 
  \begin{align}
  U &= \begin{bmatrix}
@@ -230,6 +231,8 @@ $V^{\pm 0 \pm}_{j k l}$, $V_{j k l}$, and $V^{0 \mp 0}_{j k l}$,
 and
 $V^{0 \pm \pm}_{j k l}$, $V_{j k l}$, and $V^{0 0 \mp}_{j k l}$.
 
+\subsection{The Angular Momentum Correction}
+
 Now we modify the reconstruction for the linear momenta, $\vect{s}$, using information from the angular momenta, $\am$. This resembles closely the method
 used by \cite{DESPRES2015}. First we measure the amount of angular momentum, relative to cell centers, represented by the reconstructed linear momentum.
 Summing over all $\pm$ combinations using Simpson's rule, the measured angular momentum for a cell is
@@ -246,9 +249,48 @@ Summing over all $\pm$ combinations using Simpson's rule, the measured angular m
 \end{split}
 \end{equation}
 
+Taking a Taylor expansion of the angular momentum relative to a cell center and integrating over the whole cell, we find
+\begin{equation}
+{\vect{z}}_{j k l} = \tfrac{1}{12} \epsilon_{n m q} \left(\frac{\partial s_{m}}{\partial x_n}\right)_{j k l} \Delta^2 \vect{e}_q + \vect{\mathcal{O}}(\Delta^3),
+\label{beg_cor}
+\end{equation}
+where $\Delta$ is the even grid spacing and $\vect{e}_q$ is the $q^\mathrm{th}$ unit vector. Using this fact, we can correct the linear momenta to reproduce the
+correct angular momenta by modifying the reconstruction according to
+\begin{equation}
+\vect{s}^{* \pm\pm\pm}_{j k l} = \vect{s}^{\pm\pm\pm}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j\pm\tfrac{1}{2} k\pm\tfrac{1}{2} l\pm\tfrac{1}{2}} - \vect{x}_{j k l} \right),
+\end{equation}
+\begin{equation}
+\vect{s}^{* \pm\pm 0}_{j k l} = \vect{s}^{\pm\pm 0}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j\pm\tfrac{1}{2} k\pm\tfrac{1}{2} l} - \vect{x}_{j k l} \right),
+\end{equation}
+\begin{equation}
+\vect{s}^{* \pm 0 \pm}_{j k l} = \vect{s}^{\pm 0 \pm}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j\pm\tfrac{1}{2} k l\pm\tfrac{1}{2}} - \vect{x}_{j k l} \right).,
+\end{equation}
+\begin{equation}
+\vect{s}^{* 0 \pm\pm}_{j k l} = \vect{s}^{ 0 \pm\pm}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j k\pm\tfrac{1}{2} l\pm\tfrac{1}{2}} - \vect{x}_{j k l} \right).,
+\end{equation}
+\begin{equation}
+\vect{s}^{* \pm 0 0}_{j k l} = \vect{s}^{\pm 0  0}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j\pm\tfrac{1}{2} k l} - \vect{x}_{j k l} \right),
+\end{equation}
+\begin{equation}
+\vect{s}^{* 0 \pm 0}_{j k l} = \vect{s}^{0\pm 0}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j k\pm\tfrac{1}{2} l} - \vect{x}_{j k l} \right),
+\end{equation}
+and
+\begin{equation}
+\vect{s}^{* 0 0 \pm }_{j k l} = \vect{s}^{0  0\pm }_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j k l\pm\tfrac{1}{2}} - \vect{x}_{j k l} \right).
+\label{end_cor}
+\end{equation}
 
-
-
+Equations \ref{beg_cor} - \ref{end_cor} will reproduce a momentum field that exactly matches the evolved angular momentum, however the reconstructed quantities may introduce new extrema to the solution. To fix this issue, first we limit the newly reconstructed momenta according to
+\begin{equation}
+\vect{s}^{* \pm\pm\pm}_{i j k} \rightarrow
+\mathrm{min}\left(
+\mathrm{max}\left(
+\vect{s}^{* \pm\pm\pm}_{i j k},
+\mathrm{min}\left(\vect{s}_{i j k}, \vect{s}_{i\pm 1 j \pm 1 k\pm 1}\right), 
+\right), \mathrm{max}\left(\vect{s}_{i j k}, \vect{s}_{i\pm 1 j \pm 1 k\pm 1}\right) \right),
+\end{equation}
+at cell vertices. We proceed similarly for cell edges and faces.
+This eliminates new extrema relative to cell averages, however, there will still be jumps across cell faces which introduce new extrema. To correct this we adapt the method described in \cite{Kurganov2001} and \cite{Liu1998}.
 \bibliographystyle{plain}
 \bibliography{references}
 
