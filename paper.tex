@@ -199,6 +199,27 @@ V^{0 0 \pm}_{j k l} \rightarrow V_{j k l\pm\tfrac{1}{2}}.
 \end{equation}
 
 
+The PPM limiter is defined as
+\begin{align}
+  \begin{bmatrix}
+ 	a_R \\
+        a_L
+  \end{bmatrix} \rightarrow
+  \begin{bmatrix}
+ 	\begin{cases}
+             a_0 &  \mathrm{if} \ \left(a_R - a_0\right)\left(a_0 - a_L\right) < 0 \\
+             3 a_0 - 2 a_L & \mathrm{if}  \ -\frac{\left(a_R - a_L\right)}{6} < \left(a_0 - \tfrac{1}{2}\left(a_R + a_L\right)\right) \\
+             a_R &  \mathrm{else}
+        \end{cases} \\
+\\
+         \begin{cases}
+             a_0 &  \mathrm{if} \ \left(a_R - a_0\right)\left(a_0 - a_L\right) < 0 \\
+             3 a_0 - 2 a_R & \mathrm{if} \ \frac{\left(a_R - a_L\right)}{6} < \left(a_0 - \tfrac{1}{2}\left(a_R + a_L\right)\right) \\
+             a_L &  \mathrm{else}
+        \end{cases}
+  \end{bmatrix}
+\end{align}
+
 
 
 \bibliographystyle{plain}
