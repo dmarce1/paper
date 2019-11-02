@@ -202,6 +202,7 @@ V^{0 0 \pm}_{j k l} \rightarrow V_{j k l\pm\tfrac{1}{2}}.
 
 The PPM limiter of \cite{COLELLA1984} is defined as
 \begin{align}
+\label{ppm_limiter}
   \begin{bmatrix}
  	a^+ \\
         a^-
@@ -290,7 +291,21 @@ Equations \ref{beg_cor} - \ref{end_cor} will reproduce a momentum field that exa
 \right), \mathrm{max}\left(\vect{s}_{i j k}, \vect{s}_{i\pm 1 j \pm 1 k\pm 1}\right) \right),
 \end{equation}
 at cell vertices. We proceed similarly for cell edges and faces.
-This eliminates new extrema relative to cell averages, however, there will still be jumps across cell faces which introduce new extrema. To correct this we adapt the method described in \cite{Kurganov2001} and \cite{Liu1998}.
+Then we apply the PPM limiter of Equation \ref{ppm_limiter}. This former eliminates new extreme across cells, the latter extrema within cells, but there may still be jumps across cell faces, e.g.
+$\left(s^{* - 0 0}_{i, j + 1 k l} - s^{* + 0 0}_{i, j k l} \right)\left(s_{i,  j + 1 k l} - s_{i, j k l}\right) < 0$, that introduce new extrema.
+
+To correct this we adapt the method described in \cite{Kurganov2001} and \cite{Liu1998}. The final reconstruction is a combination of the modified reconstruction and the original reconstruction,
+\begin{equation}
+\vect{s}^{*} \rightarrow \left(1 - \theta\right) \vect{s}  + \theta \ \vect{s}^{*},
+\end{equation}
+where $0 \le \theta \le 1$ is chosen to be just small enough to eliminate all extrema forming jumps across boundaries. Following \cite{Kurganov2001} , 
+
+
+
+
+
+
+
 \bibliographystyle{plain}
 \bibliography{references}
 
