@@ -21,19 +21,19 @@
 \section{Model Equations}
 The evolution equations are
 \begin{equation}
-\ddt{\rho}+\divergence{\rho\vect{u}}=0,
+\ddt{\rho}+\divergence{\rho\vect{v}}=0,
 \label{rho}
 \end{equation}
 \begin{equation}
-\ddt{\vect{s}}+\divergence{\vect{u}\vect{s} + \gradient{p}}=\rho \vect{g} + \vect{\Omega} \times \vect{s},
+\ddt{\vect{s}}+\divergence{\vect{v}\vect{s} + \gradient{p}}=\rho \vect{g},
 \label{rhou}
 \end{equation}
 \begin{equation}
-\ddt{\am}+\divergence{\vect{u}\am - \curl{\vect{x} p}}=\vect{x}\times\rho \vect{g} + \vect{\Omega} \times \am,
+\ddt{\am}+\divergence{\vect{v}\am - \curl{\vect{x} p}}=\vect{x}\times\rho \vect{g},
 \label{am}
 \end{equation}
 \begin{equation}
-\ddt{\left(E+\tfrac{1}{2}\rho\phi\right)}+\divergence{\vect{u}\left(E+p+\rho\phi\right)}=\tfrac{1}{2}\left(\phi\ddt{\rho}-\rho\ddt{\phi}\right),
+\ddt{\left(E+\tfrac{1}{2}\rho\phi\right)}+\divergence{\vect{v}\left(E+p+\rho\phi\right)}=\tfrac{1}{2}\left(\phi\ddt{\rho}-\rho\ddt{\phi}\right),
 \label{E}
 \end{equation}
 and
@@ -41,9 +41,8 @@ and
 \ddt{\tau}+\divergence{\tau\vect{u}}=0,
 \label{tau}
 \end{equation}
-where $t$ is the time coordinate, $\rho$ is the mass density, $\vect{u}$ is the velocity relative to the grid, $\vect{s}$ is the inertial frame momentum density, $p$ is the gas pressure, 
+where $t$ is the time coordinate, $\rho$ is the mass density, $\vect{u}$ is the velocity, $\vect{s}$ is the inertial frame momentum density, $p$ is the gas pressure, 
 $\vect{g}$ is the gravitational acceleration, 
-$\vect{\Omega}$ is the angular frequency of of the grid,
 $\am$ is the angular momentum relative to the coordinate center, 
 $\vect{x}$ is the spatial coordinate relative to the origin, 
 $E$ is the gas energy, $\phi$ is the gravitational potential, 
@@ -70,7 +69,6 @@ The angular momentum is defined as
 
 
 \section{Method}
-\subsection{Reconstruction}
 We begin by reconstructing cell averaged values on the surface of the cells. Rather than reconstruct the vector of conserved quanties, 
  \begin{align}
  U &= \begin{bmatrix}
@@ -85,168 +83,35 @@ we reconstruct
  \begin{align}
  V &= \begin{bmatrix}
  	\rho \\
-        \frac{\vect{s}}{\rho} \\
-        \frac{\am}{\rho} - \vect{x} \times \vect{s} \\
-        E - \tfrac{1}{2} \frac{s^2}{\rho}\\
+        \vect{u}\\
+        \vect{z} \\
+        E - \tfrac{1}{2} \rho u^2\\
         \tau
       \end{bmatrix},
 \end{align}
-and then transform back to $U$ after reconstruction.
+where $\vect{z} := \frac{\am}{\rho} - \vect{x_c} \times \vect{s}$ is the spin angular momentum relative to a particular grid cell with center $\vect{x_c}$,
+and then transform back to $U$ after reconstruction .
 
-Using the piece-wise parabolic method (PPM) of \cite{COLELLA1984}, we reconstruct values at eight cell vertices, 
-\begin{equation}
-\begin{split}
-V_{j \pm \tfrac{1}{2} k \pm \tfrac{1}{2} l \pm \tfrac{1}{2}} = & 
-\frac{1}{2}\left(V_{ j k l } + V_{j \pm 1 k \pm 1 l \pm 1}\right) - \\
-& \frac{1}{6}\left(
-\mathrm{minmod}_2 \left(V_{j \pm 2 k \pm 2 l \pm 2} - V_{j \pm 1 k \pm 1 l \pm  1}, V_{j \pm 1 k \pm 1 l \pm 1} - V_{j k l }   \right) -
-\mathrm{minmod}_2 \left(V_{j \pm 1 k \pm 1 l \pm 1} - V_{j k l}, V_{j k l } - V_{j \mp 1 k \mp 1 l \mp 1 }   \right)
-\right),
-\end{split}
-\end{equation}
-twelve cell edges, 
-\begin{equation}
-\begin{split}
-V_{j \pm \tfrac{1}{2} k \pm \tfrac{1}{2} l } = & 
-\frac{1}{2}\left(V_{ j k l } + V_{j \pm 1 k \pm 1 l}\right) - \\
-& \frac{1}{6}\left(
-\mathrm{minmod}_2 \left(V_{j \pm 2 k \pm 2 l} - V_{j \pm 1 k \pm 1 l \pm  1}, V_{j \pm 1 k \pm 1 l} - V_{j k l }   \right) -
-\mathrm{minmod}_2 \left(V_{j \pm 1 k \pm 1 l} - V_{j k l}, V_{j k l } - V_{j \mp 1 k \mp 1 l}   \right)
-\right),
-\end{split}
-\end{equation}
-\begin{equation}
-\begin{split}
-V_{j \pm \tfrac{1}{2} k l \pm \tfrac{1}{2}} = & 
-\frac{1}{2}\left(V_{ j k l } + V_{j \pm 1 k l \pm 1}\right) - \\
-& \frac{1}{6}\left(
-\mathrm{minmod}_2 \left(V_{j \pm 2 k l \pm 2} - V_{j \pm 1 k l \pm  1}, V_{j \pm 1 k l \pm 1} - V_{j k l }   \right) -
-\mathrm{minmod}_2 \left(V_{j \pm 1 k l \pm 1} - V_{j k l}, V_{j k l } - V_{j \mp 1 k l \mp 1 }   \right)
-\right),
-\end{split}
-\end{equation}
-\begin{equation}
-\begin{split}
-V_{j k \pm \tfrac{1}{2} l \pm \tfrac{1}{2}} = & 
-\frac{1}{2}\left(V_{ j k l } + V_{j k \pm 1 l \pm 1}\right) - \\
-& \frac{1}{6}\left(
-\mathrm{minmod}_2 \left(V_{j k \pm 2 l \pm 2} - V_{j k \pm 1 l \pm  1}, V_{j k \pm 1 l \pm 1} - V_{j k l }   \right) -
-\mathrm{minmod}_2 \left(V_{j k \pm 1 l \pm 1} - V_{j k l}, V_{j k l } - V_{j k \mp 1 l \mp 1 }   \right)
-\right),
-\end{split}
-\end{equation}
-and six cell faces,
-\begin{equation}
-\begin{split}
-V_{j \pm \tfrac{1}{2} k l } = & 
-\frac{1}{2}\left(V_{ j k l } + V_{j \pm 1 k l}\right) - \\
-& \frac{1}{6}\left(
-\mathrm{minmod}_2 \left(V_{j \pm 2 k l} - V_{j \pm 1 k l }, V_{j \pm 1 k l} - V_{j k l }   \right) -
-\mathrm{minmod}_2 \left(V_{j \pm 1 k l} - V_{j k l}, V_{j k l } - V_{j \mp 1 k l}   \right)
-\right),
-\end{split}
-\end{equation}
-\begin{equation}
-\begin{split}
-V_{j  k \pm \tfrac{1}{2} l} = & 
-\frac{1}{2}\left(V_{ j k l } + V_{j k \pm 1 l}\right) - \\
-& \frac{1}{6}\left(
-\mathrm{minmod}_2 \left(V_{j k \pm 2 l} - V_{j k \pm 1 l }, V_{j k \pm 1 l } - V_{j k l }   \right) -
-\mathrm{minmod}_2 \left(V_{j k \pm 1 l} - V_{j k l}, V_{j k l } - V_{j k \mp 1 l }   \right)
-\right),
-\end{split}
-\end{equation}
-\begin{equation}
-\begin{split}
-V_{j  k l \pm \tfrac{1}{2}} = & 
-\frac{1}{2}\left(V_{ j k l } + V_{j k l \pm 1}\right) - \\
-& \frac{1}{6}\left(
-\mathrm{minmod}_2 \left(V_{j k l \pm 2} - V_{j k l \pm  1}, V_{j k l \pm 1} - V_{j k l }   \right) -
-\mathrm{minmod}_2 \left(V_{j k l \pm 1} - V_{j k l}, V_{j k l } - V_{j k l \mp 1 }   \right)
-\right),
-\end{split}
-\end{equation}
-where
-\begin{equation}
-\mathrm{minmod}_2 \left( a, b \right) := \mathrm{minmod} \left( 2 \ \mathrm{minmod}\left(a,b\right), \tfrac{1}{2}\left(a + b\right)\right).
-\end{equation}
-Here, $\mathrm{minmod}$ is the ubiquitous minmod operator, 
-\begin{equation}
-\mathrm{minmod}\left(a,b\right) = \tfrac{1}{2}\left(\mathrm{sgn}\left(a\right)+\mathrm{sgn}\left(b\right)\right) \mathrm{min}\left( | a |, | b | \right).
-\end{equation}
+We use the piecewise parabolic method (PPM) of \cite{COLELLA1984}  to reconstruct values at each face, edge, and vertex. Here, we denote particlar faces, edges, and vertices using a $+$, $0$, or $-$ superscript
+for each dimension. For example, $a^{+00}_{j k l} := a_{j k l}\left(x_{j+\tfrac{1}{2} k l}\right)$ is the value of $a$ at the right x-face the $ijk^\mathrm{th}$ cell. The five cell stencil required for PPM is
+taken along the direction of each face, edge, or vertex. For example, computing $a^{+0-}_{j k l}$ uses the cell averaged values $a_{j + 2 k l - 2}$,$a_{j + 1 k l - 1}$,$a_{j k l}$,$u_{j - 1 k l + 1}$, and
+$a_{j - 2 k l + 2}$.  
 
-Now we split the shared reconstructed values into
-\begin{equation}
-V^{\pm \pm \pm}_{j k l} \rightarrow V_{j\pm\tfrac{1}{2} k\pm\tfrac{1}{2} l\pm\tfrac{1}{2}},
-\end{equation}
-\begin{equation}
-V^{\pm \pm 0}_{j k l} \rightarrow V_{j\pm\tfrac{1}{2} k\pm\tfrac{1}{2} l},
-\end{equation}
-\begin{equation}
-V^{\pm 0 \pm}_{j k l} \rightarrow V_{j\pm\tfrac{1}{2} k l\pm\tfrac{1}{2}},
-\end{equation}
-\begin{equation}
-V^{0 \pm \pm}_{j k l} \rightarrow V_{j k\pm\tfrac{1}{2} l\pm\tfrac{1}{2}},
-\end{equation}
-\begin{equation}
-V^{\pm 0 0}_{j k l} \rightarrow V_{j\pm\tfrac{1}{2} k l},
-\end{equation}
-\begin{equation}
-V^{0 \pm 0}_{j k l} \rightarrow V_{j k\pm\tfrac{1}{2} l},
-\end{equation}
-and
-\begin{equation}
-V^{0 0 \pm}_{j k l} \rightarrow V_{j k l\pm\tfrac{1}{2}}.
-\end{equation}
+In this way, the PPM method is implemented as described in \cite{COLLELLA1984}, including contact discontinuity detection, with one difference: before imposing monotonicity constraints
+on the velocity field, we modify the reconstructed values to match as closely as possible the evolved angular momemtum field. This method resembles the one described by \cite{DESPRES2015}.
 
-
-The PPM limiter of \cite{COLELLA1984} is defined as
-\begin{align}
-\label{ppm_limiter}
-  \begin{bmatrix}
- 	a^+ \\
-        a^-
-  \end{bmatrix} \rightarrow
-  \begin{bmatrix}
- 	\begin{cases}
-             a_0 &  \mathrm{if} \ \left(a^+ - a_0\right)\left(a_0 - a^-\right) < 0 \\
-             3 a_0 - 2 a^- & \mathrm{if}  \ -\frac{\left(a^+ - a^-\right)}{6} < \left(a_0 - \tfrac{1}{2}\left(a^+ + a^-\right)\right) \\
-             a^+ &  \mathrm{else}
-        \end{cases} \\
-\\
-         \begin{cases}
-             a_0 &  \mathrm{if} \ \left(a^+ - a_0\right)\left(a_0 - a^-\right) < 0 \\
-             3 a_0 - 2 a^+ & \mathrm{if} \ \frac{\left(a^+ - a^-\right)}{6} < \left(a_0 - \tfrac{1}{2}\left(a^+ + a^-\right)\right) \\
-             a^- &  \mathrm{else}
-        \end{cases}
-  \end{bmatrix},
-\end{align}
-where $a^-$, $a_0$, and $a^+$ refer to the values at cell vertices, $V^{\pm\pm\pm}_{j k l}$, $V_{j k l}$, and $V^{\mp\mp\mp}_{j k l}$, cell edges,
-$V^{\pm\pm 0}_{j k l}$, $V_{j k l}$, and $V^{\mp\mp 0}_{j k l}$,
-$V^{\pm 0 \pm}_{j k l}$, $V_{j k l}$, and $V^{\mp 0 \mp}_{j k l}$,
-and
-$V^{0 \pm\pm}_{j k l}$, $V_{j k l}$, and $V^{0 \mp\mp}_{j k l}$, 
-and cell faces
-$V^{\pm 0 0}_{j k l}$, $V_{j k l}$, and $V^{\mp 0 0}_{j k l}$,
-$V^{\pm 0 \pm}_{j k l}$, $V_{j k l}$, and $V^{0 \mp 0}_{j k l}$,
-and
-$V^{0 \pm \pm}_{j k l}$, $V_{j k l}$, and $V^{0 0 \mp}_{j k l}$.
-
-\subsection{The Angular Momentum Correction}
-
-Now we modify the reconstruction for the linear momenta, $\vect{s}$, using information from the angular momenta, $\am$. This resembles closely the method
-used by \cite{DESPRES2015}. First we measure the amount of angular momentum, relative to cell centers, represented by the reconstructed linear momentum.
+First we measure the amount of angular momentum, relative to cell centers, represented by the reconstructed linear momenta.
 Summing over all $\pm$ combinations using Simpson's rule, the measured angular momentum for a cell is
 \begin{equation}
 \begin{split}
 \vect{z}_{M, j k l} := 
-& \frac{1}{216} \Sigma^{\pm\pm\pm}  \left(\vect{x}_{j\pm\tfrac{1}{2} k \pm\tfrac{1}{2} l\pm\tfrac{1}{2}}  - \vect{x}_{j k l}\right) \times \vect{s}^{\pm\pm\pm}_{j k l} + \\
-& \frac{1}{54}  \ \Sigma^{\pm\pm} \left(\vect{x}_{j\pm\tfrac{1}{2}  k \pm\tfrac{1}{2} l}                - \vect{x}_{j k l}\right)\times \vect{s}^{\pm\pm 0}_{j k l} + \\ 
-& \frac{1}{54}  \ \Sigma^{\pm\pm} \left(\vect{x}_{j\pm\tfrac{1}{2}  k                 l\pm\tfrac{1}{2}} - \vect{x}_{j k l}\right)\times \vect{s}^{\pm 0\pm}_{j k l} + \\
-& \frac{1}{54}  \ \Sigma^{\pm\pm} \left(\vect{x}_{j                 k\pm\tfrac{1}{2}  l\pm\tfrac{1}{2}} - \vect{x}_{j k l}\right)\times \vect{s}^{0\pm\pm }_{j k l} + \\
-& \frac{2}{27}  \ \Sigma^{\pm}   \left(\vect{x}_{j\pm\tfrac{1}{2} k l}                                 - \vect{x}_{j k l}\right)\times \vect{s}^{\pm 0 0}_{j k l} +  \\
-& \frac{2}{27}  \ \Sigma^{\pm}   \left(\vect{x}_{j k\pm\tfrac{1}{2} l}                                 - \vect{x}_{j k l}\right)\times \vect{s}^{0 \pm 0}_{j k l} +  \\
-& \frac{2}{27}  \ \Sigma^{\pm}   \left(\vect{x}_{j k l\pm\tfrac{1}{2}}                                 - \vect{x}_{j k l}\right)\times \vect{s}^{0 0 \pm}_{j k l} 
+& \frac{1}{216} \Sigma^{\pm\pm\pm}  \left(\vect{x}_{j\pm\tfrac{1}{2} k \pm\tfrac{1}{2} l\pm\tfrac{1}{2}}  - \vect{x}_{j k l}\right)\times \vect{\rho}^{\pm\pm\pm}_{j k l} \vect{u}^{\pm\pm\pm}_{j k l} + \\
+& \frac{1}{54}  \ \Sigma^{\pm\pm} \left(\vect{x}_{j\pm\tfrac{1}{2}  k \pm\tfrac{1}{2} l}                  - \vect{x}_{j k l}\right)\times \vect{\rho}^{\pm\pm 0}_{j k l}  \vect{u}^{\pm\pm 0}_{j k l}  + \\ 
+& \frac{1}{54}  \ \Sigma^{\pm\pm} \left(\vect{x}_{j\pm\tfrac{1}{2}  k                 l\pm\tfrac{1}{2}}   - \vect{x}_{j k l}\right)\times \vect{\rho}^{\pm 0\pm}_{j k l}  \vect{u}^{\pm 0\pm}_{j k l}  + \\
+& \frac{1}{54}  \ \Sigma^{\pm\pm} \left(\vect{x}_{j                 k\pm\tfrac{1}{2}  l\pm\tfrac{1}{2}}   - \vect{x}_{j k l}\right)\times \vect{\rho}^{0\pm\pm }_{j k l}  \vect{u}^{0\pm\pm }_{j k l}  + \\
+& \frac{2}{27}  \ \Sigma^{\pm}   \left(\vect{x}_{j\pm\tfrac{1}{2} k l}                                    - \vect{x}_{j k l}\right)\times \vect{\rho}^{\pm 0 0}_{j k l}   \vect{u}^{\pm 0 0}_{j k l}   +  \\
+& \frac{2}{27}  \ \Sigma^{\pm}   \left(\vect{x}_{j k\pm\tfrac{1}{2} l}                                    - \vect{x}_{j k l}\right)\times \vect{\rho}^{0 \pm 0}_{j k l}   \vect{u}^{0 \pm 0}_{j k l}   +  \\
+& \frac{2}{27}  \ \Sigma^{\pm}   \left(\vect{x}_{j k l\pm\tfrac{1}{2}}                                    - \vect{x}_{j k l}\right)\times \vect{\rho}^{0 0 \pm}_{j k l}   \vect{u}^{0 0 \pm}_{j k l}   
 \end{split}
 \end{equation}
 
@@ -258,51 +123,18 @@ Taking a Taylor expansion of the angular momentum relative to a cell center and 
 where $\Delta$ is the even grid spacing and $\vect{e}_q$ is the $q^\mathrm{th}$ unit vector. Using this fact, we can correct the linear momenta to reproduce the
 correct angular momenta by modifying the reconstruction according to
 \begin{equation}
-\vect{s}^{* \pm\pm\pm}_{j k l} = \vect{s}^{\pm\pm\pm}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j\pm\tfrac{1}{2} k\pm\tfrac{1}{2} l\pm\tfrac{1}{2}} - \vect{x}_{j k l} \right),
+\vect{s}^{* p}_{j k l} = \vect{s}^{p}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}^p - \vect{x}_{j k l} \right),
 \end{equation}
-\begin{equation}
-\vect{s}^{* \pm\pm 0}_{j k l} = \vect{s}^{\pm\pm 0}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j\pm\tfrac{1}{2} k\pm\tfrac{1}{2} l} - \vect{x}_{j k l} \right),
-\end{equation}
-\begin{equation}
-\vect{s}^{* \pm 0 \pm}_{j k l} = \vect{s}^{\pm 0 \pm}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j\pm\tfrac{1}{2} k l\pm\tfrac{1}{2}} - \vect{x}_{j k l} \right).,
-\end{equation}
-\begin{equation}
-\vect{s}^{* 0 \pm\pm}_{j k l} = \vect{s}^{ 0 \pm\pm}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j k\pm\tfrac{1}{2} l\pm\tfrac{1}{2}} - \vect{x}_{j k l} \right).,
-\end{equation}
-\begin{equation}
-\vect{s}^{* \pm 0 0}_{j k l} = \vect{s}^{\pm 0  0}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j\pm\tfrac{1}{2} k l} - \vect{x}_{j k l} \right),
-\end{equation}
-\begin{equation}
-\vect{s}^{* 0 \pm 0}_{j k l} = \vect{s}^{0\pm 0}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j k\pm\tfrac{1}{2} l} - \vect{x}_{j k l} \right),
-\end{equation}
-and
-\begin{equation}
-\vect{s}^{* 0 0 \pm }_{j k l} = \vect{s}^{0  0\pm }_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}_{j k l\pm\tfrac{1}{2}} - \vect{x}_{j k l} \right).
-\label{end_cor}
-\end{equation}
+where the $p$ superscripts refer to a give cell face, edge, or vertex.
 
-Equations \ref{beg_cor} - \ref{end_cor} will reproduce a momentum field that exactly matches the evolved angular momentum, however the reconstructed quantities may introduce new extrema to the solution. To fix this issue, first we limit the newly reconstructed momenta according to
+Equation \ref{beg_cor} will reproduce a momentum field that matches the evolved angular momentum, however the reconstructed quantities may introduce new extrema to the solution. Noting that the 
+reconstructed parabolas can be written
 \begin{equation}
-\vect{s}^{* \pm\pm\pm}_{i j k} \rightarrow
-\mathrm{min}\left(
-\mathrm{max}\left(
-\vect{s}^{* \pm\pm\pm}_{i j k},
-\mathrm{min}\left(\vect{s}_{i j k}, \vect{s}_{i\pm 1 j \pm 1 k\pm 1}\right), 
-\right), \mathrm{max}\left(\vect{s}_{i j k}, \vect{s}_{i\pm 1 j \pm 1 k\pm 1}\right) \right),
+\label{parabola}
+a\left(x\right) := \tilde{a} + a_1 x + \left(a_2 - \tfrac{1}{12}\right) x^2,
 \end{equation}
-at cell vertices. We proceed similarly for cell edges and faces.
-Then we apply the PPM limiter of Equation \ref{ppm_limiter}. This former eliminates new extreme across cells, the latter extrema within cells, but there may still be jumps across cell faces, e.g.
-$\left(s^{* - 0 0}_{i, j + 1 k l} - s^{* + 0 0}_{i, j k l} \right)\left(s_{i,  j + 1 k l} - s_{i, j k l}\right) < 0$, that introduce new extrema.
-
-To correct this we adapt the method described in \cite{Kurganov2001} and \cite{Liu1998}. The final reconstruction is a combination of the modified reconstruction and the original reconstruction,
-\begin{equation}
-\vect{s}^{*} \rightarrow \left(1 - \theta\right) \vect{s}  + \theta \ \vect{s}^{*},
-\end{equation}
-where $0 \le \theta \le 1$ is chosen to be just small enough to eliminate all extrema forming jumps across boundaries. Following \cite{Kurganov2001} , 
-
-
-
-
+first we limit the slope $a_1$ to the TVD limit using the superbee limiter with neighboring cells (CITATION NEEDED). The resulting values may still not be TVD - i.e. withing the range of neighboring cell averages, 
+due to the third term on the RHS of Equation (\ref{parabola}). Thus we limit $a_2$ accordingly. Only then are the monotonicity constraints of \cite{COLELLA1984} applied.
 
 
 
