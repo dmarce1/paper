@@ -69,6 +69,11 @@ The angular momentum is defined as
 
 
 \section{Method}
+\cite{DESPRES2015} treated the angular momentum fields as part of the sub-cell velocity structure. This couples the angular momentum to the linear momentum, allowing any excess or 
+deficit of angular momentum in a given cell to feed back into the system's linear momentum in a way that preserves the total angular momentum. They used a 2nd order MUSCL reconstruction.
+Here we detail our modification to the reconstruction of the piece-wise parabolic method (PPM) \cite{COLELLA1984}, extending the method of \cite{DESPRES2015} to a fully three-dimensional 
+and 3rd order reconstruction.
+ 
 We begin by reconstructing cell averaged values on the surface of the cells. Rather than reconstruct the vector of conserved quanties, 
  \begin{align}
  U &= \begin{bmatrix}
@@ -90,15 +95,15 @@ we reconstruct
       \end{bmatrix},
 \end{align}
 where $\vect{z} := \frac{\am}{\rho} - \vect{x_c} \times \vect{s}$ is the spin angular momentum relative to a particular grid cell with center $\vect{x_c}$,
-and then transform back to $U$ after reconstruction .
+and then transform back to $U$ after reconstruction of $V$.
 
-We use the piecewise parabolic method (PPM) of \cite{COLELLA1984}  to reconstruct values at each face, edge, and vertex. Here, we denote particlar faces, edges, and vertices using a $+$, $0$, or $-$ superscript
-for each dimension. For example, $a^{+00}_{j k l} := a_{j k l}\left(x_{j+\tfrac{1}{2} k l}\right)$ is the value of $a$ at the right x-face the $ijk^\mathrm{th}$ cell. The five cell stencil required for PPM is
-taken along the direction of each face, edge, or vertex. For example, computing $a^{+0-}_{j k l}$ uses the cell averaged values $a_{j + 2 k l - 2}$,$a_{j + 1 k l - 1}$,$a_{j k l}$,$u_{j - 1 k l + 1}$, and
-$a_{j - 2 k l + 2}$.  
-
-In this way, the PPM method is implemented as described in \cite{COLELLA1984}, including contact discontinuity detection, with one difference: before imposing monotonicity constraints
-on the velocity field, we modify the reconstructed values to match as closely as possible the evolved angular momemtum field. This method resembles the one described by \cite{DESPRES2015}.
+We use PPM to reconstruct values at each face, edge, and vertex. Here, we denote particlar faces, edges, and vertices using a $+$, $0$, or $-$ superscript
+for each dimension. For example, $a^{+00}_{j k l} := a_{j k l}\left(x_{j+\tfrac{1}{2} k l}\right)$ is the value of $a$ at the right x-face of the $ijk^\mathrm{th}$ cell. 
+The five cell stencil required for PPM is
+taken along the direction of each face, edge, or vertex. For example, computing $a^{+0-}_{j k l}$ uses the cell averaged values $a_{j + 2 k l - 2}$,$a_{j + 1 k l - 1}$,
+$a_{j k l}$,$u_{j - 1 k l + 1}$, and
+$a_{j - 2 k l + 2}$.  We implement the PPM reconstruction as described in \cite{COLELLA1984}, including contact discontinuity detection, with one difference: before imposing monotonicity constraints
+on the velocity field, we modify the reconstructed values to match as closely as possible the evolved angular momemtum field. 
 
 First we measure the amount of angular momentum, relative to cell centers, represented by the reconstructed linear momenta.
 Summing over all $\pm$ combinations using Simpson's rule, the measured angular momentum for a cell is
@@ -118,16 +123,34 @@ Summing over all $\pm$ combinations using Simpson's rule, the measured angular m
 Taking a Taylor expansion of the angular momentum relative to a cell center and integrating over the whole cell, we find
 \begin{equation}
 {\vect{z}}_{j k l} = \tfrac{1}{12} \epsilon_{n m q} \left(\frac{\partial s_{m}}{\partial x_n}\right)_{j k l} \Delta^2 \vect{e}_q + \vect{\mathcal{O}}(\Delta^3),
-\label{beg_cor}
 \end{equation}
 where $\Delta$ is the even grid spacing and $\vect{e}_q$ is the $q^\mathrm{th}$ unit vector. Using this fact, we can correct the linear momenta to reproduce the
 correct angular momenta by modifying the reconstruction according to
 \begin{equation}
-\vect{s}^{* p}_{j k l} = \vect{s}^{p}_{j k l} + \frac{6}{\Delta^2} \left(\vect{z}_{j k l} - \vect{z}_{M, j k l}\right) \times \left( \vect{x}^p - \vect{x}_{j k l} \right),
+\vect{u}^{* \pm\pm\pm}_{j k l} = \vect{u}^{\pm\pm\pm}_{j k l} + \frac{12}{\Delta^2} \frac{\vect{z}_{j k l} - \vect{z}_{M, j k l}}{\rho^{\pm\pm\pm}_{j k l}+\rho^{\mp\mp\mp}_{j k l}} \times \left( \vect{x}_{j\pm\tfrac{1}{2}k\pm\tfrac{1}{2}l\pm\tfrac{1}{2}} - \vect{x}_{j k l} \right),
+\label{beg_cor}
 \end{equation}
-where the $p$ superscripts refer to a give cell face, edge, or vertex.
+\begin{equation}
+\vect{u}^{* 0\pm\pm}_{j k l} = \vect{u}^{0\pm\pm}_{j k l} + \frac{12}{\Delta^2} \frac{\vect{z}_{j k l} - \vect{z}_{M, j k l}}{\rho^{0\pm\pm}_{j k l}+\rho^{0\mp\mp}_{j k l}} \times \left( \vect{x}_{j k\pm\tfrac{1}{2}l\pm\tfrac{1}{2}} - \vect{x}_{j k l} \right),
+\end{equation}
+\begin{equation}
+\vect{u}^{* \pm 0\pm}_{j k l} = \vect{u}^{\pm 0\pm}_{j k l} + \frac{12}{\Delta^2} \frac{\vect{z}_{j k l} - \vect{z}_{M, j k l}}{\rho^{\pm 0\pm}_{j k l}+\rho^{\mp 0\mp}_{j k l}} \times \left( \vect{x}_{j\pm\tfrac{1}{2} k l\pm\tfrac{1}{2}} - \vect{x}_{j k l} \right),
+\end{equation}
+\begin{equation}
+\vect{u}^{* \pm\pm 0}_{j k l} = \vect{u}^{\pm\pm 0}_{j k l} + \frac{12}{\Delta^2} \frac{\vect{z}_{j k l} - \vect{z}_{M, j k l}}{\rho^{\pm\pm 0}_{j k l}+\rho^{\mp\mp 0}_{j k l}} \times \left( \vect{x}_{j\pm\tfrac{1}{2} k\pm\tfrac{1}{2}l} - \vect{x}_{j k l} \right),
+\end{equation}
+\begin{equation}
+\vect{u}^{* 0 0\pm}_{j k l} = \vect{u}^{0 0\pm}_{j k l} + \frac{12}{\Delta^2} \frac{\vect{z}_{j k l} - \vect{z}_{M, j k l}}{\rho^{0 0\pm}_{j k l}+\rho^{0 0\mp}_{j k l}} \times \left( \vect{x}_{j k l\pm\tfrac{1}{2}} - \vect{x}_{j k l} \right),
+\end{equation}
+\begin{equation}
+\vect{u}^{* 0 \pm 0}_{j k l} = \vect{u}^{0\pm 0}_{j k l} + \frac{12}{\Delta^2} \frac{\vect{z}_{j k l} - \vect{z}_{M, j k l}}{\rho^{0\pm 0}_{j k l}+\rho^{0 \mp 0}_{j k l}} \times \left( \vect{x}_{j k\pm\tfrac{1}{2} l} - \vect{x}_{j k l} \right),
+\end{equation}
+\begin{equation}
+\vect{u}^{* \pm 0 0}_{j k l} = \vect{u}^{\pm 0 0}_{j k l} + \frac{12}{\Delta^2} \frac{\vect{z}_{j k l} - \vect{z}_{M, j k l}}{\rho^{\pm 0 0}_{j k l}+\rho^{\mp 0 0}_{j k l}} \times \left( \vect{x}_{j\pm\tfrac{1}{2} k l} - \vect{x}_{j k l} \right),
+\label{end_cor}
+\end{equation}
 
-Equation \ref{beg_cor} will reproduce a momentum field that matches the evolved angular momentum, however the reconstructed quantities may introduce new extrema to the solution. Denoting values on the
+Equations \ref{beg_cor} through \ref{end_cor} will reproduce a momentum field that matches the evolved angular momentum, however the reconstructed quantities may introduce new extrema to the solution. Denoting values on the
 plus and minus sides of a cell in a given direction as $a^+$ and $a^-$, respectively, and the cell average as $\tilde{a}$, we can express the reconstructed parabola as 
 \begin{equation}
 \label{parabola}
@@ -149,8 +172,9 @@ we constrain $a_1$ to the TVD limit,
 \begin{equation}
 a_1 \rightarrow \mathrm{minmod}\left(a_1, a_{1,\mathrm{lim}} \right)
 \end{equation}
+
 The resulting left and right hand values may still not be TVD, 
-due to the third term on the RHS of Equation (\ref{parabola}). Limiting $a_2$ to ensure $a^+_i$ is within the range $\left[a_i,a_{i+1}\right]$ and $a^-_i$ 
+due to the third term on the RHS of Equation (\ref{parabola}). To ensure $a^+_i$ is within the range $\left[a_i,a_{i+1}\right]$ and $a^-_i$ 
 is within the range $\left[a_{i-1},a_i\right]$, we limit the magnitude of $a_2$ to $|a_{1,\mathrm{lim}} - a_1|$,
 \begin{equation}
 a_2 \rightarrow \mathrm{sgn}\left(a_2\right)\mathrm{min} \left( |a_2|, |a_{1,\mathrm{lim}} - a_1|\right).
@@ -159,8 +183,6 @@ Using Equation (\ref{parabola}) we then obtain new values for $a^+$ and $a^-$,
 \begin{equation}
 a^\pm \rightarrow \tilde{a} \pm \tfrac{1}{2} a_1 + \tfrac{1}{6} a_2.
 \end{equation}
-
-
 Then we apply the monotonicity constraints of \cite{COLELLA1984} to obtain the final values for $a^\pm$.
 
 
